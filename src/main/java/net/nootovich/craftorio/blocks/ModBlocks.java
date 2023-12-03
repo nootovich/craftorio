@@ -22,7 +22,6 @@ public class ModBlocks {
 
     public static final RegistryObject<Block> BELT =
         registerBlock("belt", () -> new ModBelt(BlockBehaviour.Properties.copy(Blocks.STONE).noOcclusion()));
-    // MOD_BLOCKS.register("belt", () -> new Block(BlockBehaviour.Properties.copy(Blocks.STONE)));
 
     private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> block) {
         RegistryObject<T> toReturn = MOD_BLOCKS.register(name, block);
