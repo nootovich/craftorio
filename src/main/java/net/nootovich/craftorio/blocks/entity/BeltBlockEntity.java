@@ -2,7 +2,6 @@ package net.nootovich.craftorio.blocks.entity;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -33,10 +32,19 @@ public class BeltBlockEntity extends BlockEntity {
     }
 
     public void tick(Level pLevel, BlockPos pPos, BlockState pState) {
-        AABB box       = new AABB(pPos, pPos.offset(1, 1, 1));
-        Vec3 direction = Vec3.atLowerCornerOf(((Direction) pState.getValues().get(HorizontalDirectionalBlock.FACING)).getNormal()).scale(speedFactor);
-        pLevel.getEntities(null, box).forEach(e -> e.move(MoverType.SELF, direction));
-        // pLevel.getEntities(null, box).forEach(e -> e.addDeltaMovement(direction));
+        Direction direction      = (Direction) pState.getValues().get(HorizontalDirectionalBlock.FACING);
+        Vec3      movementVector = Vec3.atLowerCornerOf(direction.getNormal()).scale(speedFactor);
+        AABB      box            = new AABB(pPos).contract(0, -0.5, 0);
+        box = direction.getAxis() == Direction.Axis.X ? box.deflate(0, 0, 0.2) : box.deflate(0.2, 0, 0);
+        pLevel.getEntities(null, box)
+              .forEach(e -> {
+                  e.addDeltaMovement(movementVector);
+                  Direction.Axis axis    = direction.getAxis();
+                  double         delta   = e.getDeltaMovement().get(axis);
+                  double         desired = movementVector.get(axis);
+                  if (Math.abs(delta) > Math.abs(desired))
+                      e.addDeltaMovement(new Vec3(0, 0, 0).with(axis, desired-delta));
+              });
     }
 
     // MISC
