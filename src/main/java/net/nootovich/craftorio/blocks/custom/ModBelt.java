@@ -2,6 +2,9 @@ package net.nootovich.craftorio.blocks.custom;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -15,6 +18,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.nootovich.craftorio.blocks.entity.BeltBlockEntity;
@@ -44,8 +48,29 @@ public class ModBelt extends BaseEntityBlock {
             pBlockEntity.tick(pLevel1, pPos, pState1));
     }
 
-    // TODO: handle placing of belts on (after) belts
+    @Override
+    public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
+        if (pState.is(this) && !pPlayer.isShiftKeyDown()) {
+            Direction playerDirection = pPlayer.getDirection();
+            if (pState.getValue(FACING) == playerDirection) {
 
+                BlockPos   newPos        = pPos.relative(playerDirection);
+                BlockState newBlockState = pLevel.getBlockState(newPos);
+                int        counter       = 5;
+
+                while (counter-- > 0) {
+                    if (newBlockState.canBeReplaced()) {
+                        pLevel.setBlockAndUpdate(newPos, this.defaultBlockState().setValue(FACING, playerDirection));
+                        break;
+                    } else if (!newBlockState.is(this) || newBlockState.getValue(FACING) != playerDirection) break;
+                    newPos        = newPos.relative(playerDirection);
+                    newBlockState = pLevel.getBlockState(newPos);
+                }
+            } else pLevel.setBlockAndUpdate(pPos, pState.setValue(FACING, playerDirection));
+            return InteractionResult.SUCCESS;
+        }
+        return super.use(pState, pLevel, pPos, pPlayer, pHand, pHit);
+    }
 
     // MISC
 
