@@ -32,6 +32,14 @@ public class CraftorioItemEntity extends Entity {
         this(pLevel, pPosX, pPosY, pPosZ, pItemStack, 0, 0, 0);
     }
 
+    public CraftorioItemEntity(Level pLevel, Vec3 pos, ItemStack pItemStack) {
+        this(pLevel, pos, pItemStack, Vec3.ZERO);
+    }
+
+    public CraftorioItemEntity(Level pLevel, Vec3 pos, ItemStack pItemStack, Vec3 delta) {
+        this(pLevel, pos.x(), pos.y(), pos.z(), pItemStack, delta.x(), delta.y(), delta.z());
+    }
+
     public CraftorioItemEntity(Level pLevel, double pPosX, double pPosY, double pPosZ, ItemStack pItemStack, double pDeltaX, double pDeltaY, double pDeltaZ) {
         this(ModEntities.CRAFTORIO_ITEM.get(), pLevel);
         setPos(pPosX, pPosY, pPosZ);
