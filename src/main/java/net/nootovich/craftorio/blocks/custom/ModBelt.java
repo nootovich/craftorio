@@ -21,6 +21,7 @@ import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.nootovich.craftorio.blocks.ModBlocks;
 import net.nootovich.craftorio.blocks.entity.BeltBlockEntity;
 import net.nootovich.craftorio.blocks.entity.ModBlockEntities;
 import org.jetbrains.annotations.Nullable;
@@ -50,7 +51,7 @@ public class ModBelt extends BaseEntityBlock {
 
     @Override
     public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
-        if (pState.is(this) && !pPlayer.isShiftKeyDown()) {
+        if (!pPlayer.isShiftKeyDown() && pState.is(this) && pPlayer.getItemInHand(pHand).is(ModBlocks.BELT.get().asItem())) {
             Direction playerDirection = pPlayer.getDirection();
             if (pState.getValue(FACING) == playerDirection) {
 

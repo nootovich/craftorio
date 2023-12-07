@@ -17,7 +17,7 @@ public class ModEntities {
     public static final RegistryObject<EntityType<CraftorioItemEntity>> CRAFTORIO_ITEM =
         MOD_ENTITY_TYPES.register("craftorio_item", () ->
             EntityType.Builder.<CraftorioItemEntity>of(CraftorioItemEntity::new, MobCategory.MISC)
-                              .sized(0.25f,0.25f).build("craftorio_item"));
+                              .sized(0.275f,0.275f).build("craftorio_item"));
 
 
     public static void register(IEventBus eventBus) {

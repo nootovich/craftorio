@@ -36,7 +36,7 @@ public class BeltBlockEntity extends BlockEntity {
         Direction      direction      = (Direction) pState.getValues().get(HorizontalDirectionalBlock.FACING);
         Direction.Axis axis           = direction.getAxis();
         Vec3           movementVector = Vec3.atLowerCornerOf(direction.getNormal()).scale(speedFactor);
-        AABB           movementBB     = new AABB(pPos).contract(0, -0.5, 0);
+        AABB           movementBB     = new AABB(pPos).contract(0, -0.6, 0).contract(0, 0.2, 0);
         movementBB = axis == Direction.Axis.X ? movementBB.deflate(0, 0, 0.2) : movementBB.deflate(0.2, 0, 0);
 
         for (Entity e: pLevel.getEntities(null, movementBB)) {
@@ -95,7 +95,7 @@ public class BeltBlockEntity extends BlockEntity {
                     if (axis == Direction.Axis.X) {
                         final double fractionalZ       = cie.position().z()-pPos.getZ();
                         final double distToClosestLane = Math.min(Math.abs(fractionalZ-leftLane), Math.abs(fractionalZ-rightLane));
-                        final double speed             = distToClosestLane*distToClosestLane*speedFactor/10.d;
+                        final double speed             = distToClosestLane*distToClosestLane*speedFactor;
 
                         if (fractionalZ > 0 && fractionalZ < 1 && distToClosestLane > leeway) {
                             if (fractionalZ < leftLane) cie.addDeltaMovement(new Vec3(0, 0, speed));
@@ -106,7 +106,7 @@ public class BeltBlockEntity extends BlockEntity {
                     } else {
                         final double fractionalX       = cie.position().x()-pPos.getX();
                         final double distToClosestLane = Math.min(Math.abs(fractionalX-leftLane), Math.abs(fractionalX-rightLane));
-                        final double speed             = distToClosestLane*distToClosestLane*speedFactor/10.d;
+                        final double speed             = distToClosestLane*distToClosestLane*speedFactor;
 
                         if (fractionalX > 0 && fractionalX < 1 && distToClosestLane > leeway) {
                             if (fractionalX < leftLane) cie.addDeltaMovement(new Vec3(speed, 0, 0));
