@@ -22,6 +22,11 @@ public class BeltBlockEntity extends BlockEntity {
 
     private static final double speedFactor = 0.05d;
 
+    private static final double leftLane  = 0.3125d;
+    private static final double rightLane = 0.6875d;
+    private static final double midPoint  = 0.5d;
+    private static final double leeway    = 0.01d;
+
 
     public BeltBlockEntity(BlockPos pPos, BlockState pBlockState) {
         super(ModBlockEntities.MOD_BELT_BLOCK_ENTITY.get(), pPos, pBlockState);
@@ -55,40 +60,73 @@ public class BeltBlockEntity extends BlockEntity {
                 continue;
 
             } else if (e instanceof CraftorioItemEntity cie) {
-                AABB itemBB = cie.getBoundingBox();
+                { // Collision with blocks
+                    AABB itemBB = cie.getBoundingBox();
 
-                BlockPos nextBlockPos = pPos.relative(direction);
-                if (checkCraftorioItemCollisionWithBlock(pLevel, nextBlockPos, itemBB)) {
-                    cie.setDeltaMovement(0, 0, 0);
-                    continue;
-                } else if (!pLevel.getBlockState(nextBlockPos).is(ModBlocks.BELT.get())) {
-                    Vec3 lowerCorner  = Vec3.atLowerCornerOf(nextBlockPos).add(-.05, -.05, -.05);
-                    Vec3 higherCorner = Vec3.atLowerCornerOf(nextBlockPos).add(1.05, 1.05, 1.05);
-                    if (itemBB.intersects(lowerCorner, higherCorner)) {
+                    BlockPos nextBlockPos = pPos.relative(direction);
+                    if (checkCraftorioItemCollisionWithBlock(pLevel, nextBlockPos, itemBB)) {
+                        cie.setDeltaMovement(0, 0, 0);
+                        continue;
+                    } else if (!pLevel.getBlockState(nextBlockPos).is(ModBlocks.BELT.get())) {
+                        Vec3 lowerCorner  = Vec3.atLowerCornerOf(nextBlockPos).add(-.05, -.05, -.05);
+                        Vec3 higherCorner = Vec3.atLowerCornerOf(nextBlockPos).add(1.05, 1.05, 1.05);
+                        if (itemBB.intersects(lowerCorner, higherCorner)) {
+                            cie.setDeltaMovement(0, 0, 0);
+                            continue;
+                        }
+                    }
+
+                    if (checkCraftorioItemCollisionWithBlock(pLevel, nextBlockPos.relative(direction.getClockWise()), itemBB)) {
+                        cie.setDeltaMovement(0, 0, 0);
+                        continue;
+                    }
+
+                    if (checkCraftorioItemCollisionWithBlock(pLevel, nextBlockPos.relative(direction.getCounterClockWise()), itemBB)) {
                         cie.setDeltaMovement(0, 0, 0);
                         continue;
                     }
                 }
 
-                if (checkCraftorioItemCollisionWithBlock(pLevel, nextBlockPos.relative(direction.getClockWise()), itemBB)) {
-                    cie.setDeltaMovement(0, 0, 0);
-                    continue;
-                }
+                { // Movement towards lanes
+                    // 0.2 ---BELT--- 0.8
+                    //   LEFT     RIGHT
+                    //   0.3125  0.6875
 
-                if (checkCraftorioItemCollisionWithBlock(pLevel, nextBlockPos.relative(direction.getCounterClockWise()), itemBB)) {
-                    cie.setDeltaMovement(0, 0, 0);
-                    continue;
+                    if (axis == Direction.Axis.X) {
+                        final double fractionalZ       = cie.position().z()-pPos.getZ();
+                        final double distToClosestLane = Math.min(Math.abs(fractionalZ-leftLane), Math.abs(fractionalZ-rightLane));
+                        final double speed             = distToClosestLane*distToClosestLane*speedFactor/10.d;
+
+                        if (fractionalZ > 0 && fractionalZ < 1 && distToClosestLane > leeway) {
+                            if (fractionalZ < leftLane) cie.addDeltaMovement(new Vec3(0, 0, speed));
+                            if (fractionalZ > rightLane) cie.addDeltaMovement(new Vec3(0, 0, -speed));
+                            if (fractionalZ > leftLane && fractionalZ < midPoint) cie.addDeltaMovement(new Vec3(0, 0, -speed));
+                            if (fractionalZ < rightLane && fractionalZ > midPoint) cie.addDeltaMovement(new Vec3(0, 0, speed));
+                        }
+                    } else {
+                        final double fractionalX       = cie.position().x()-pPos.getX();
+                        final double distToClosestLane = Math.min(Math.abs(fractionalX-leftLane), Math.abs(fractionalX-rightLane));
+                        final double speed             = distToClosestLane*distToClosestLane*speedFactor/10.d;
+
+                        if (fractionalX > 0 && fractionalX < 1 && distToClosestLane > leeway) {
+                            if (fractionalX < leftLane) cie.addDeltaMovement(new Vec3(speed, 0, 0));
+                            if (fractionalX > rightLane) cie.addDeltaMovement(new Vec3(-speed, 0, 0));
+                            if (fractionalX > leftLane && fractionalX < midPoint) cie.addDeltaMovement(new Vec3(-speed, 0, 0));
+                            if (fractionalX < rightLane && fractionalX > midPoint) cie.addDeltaMovement(new Vec3(speed, 0, 0));
+                        }
+                    }
                 }
             }
 
             e.addDeltaMovement(movementVector);
 
-            if (e instanceof Player p && p.getMotionDirection() == direction) continue;
+            if (e instanceof Player) continue;
 
             double delta   = e.getDeltaMovement().get(axis);
             double desired = movementVector.get(axis);
-
-            if (Math.abs(delta) > Math.abs(desired)) e.addDeltaMovement(new Vec3(0, 0, 0).with(axis, desired-delta));
+            if (Math.abs(delta) > Math.abs(desired)) {
+                e.addDeltaMovement(new Vec3(0, 0, 0).with(axis, desired-delta));
+            }
         }
     }
 
