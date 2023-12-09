@@ -32,6 +32,11 @@ public class BeltPath {
         this.side = side;
     }
 
+    public static BeltPath createPath(Level level, Vec3 itemPos) {
+        BlockPos blockPos = BlockPos.containing(itemPos);
+        Direction itemDir = level.getBlockState(blockPos).getValue(HorizontalDirectionalBlock.FACING);
+        return createPath(level, itemPos, blockPos, itemDir);
+    }
     public static BeltPath createPath(Level level, Vec3 itemPos, BlockPos blockPos, Direction dir) {
         Vec3 relativePos = rotateFromDir(itemPos.subtract(Vec3.atLowerCornerOf(blockPos)), dir);
         if (relativePos.x() < 0 || relativePos.x() > 1 || relativePos.z() < 0 || relativePos.z() > 1) {

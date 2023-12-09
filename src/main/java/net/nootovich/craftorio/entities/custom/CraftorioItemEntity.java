@@ -41,7 +41,6 @@ public class CraftorioItemEntity extends Entity {
 
     public CraftorioItemEntity(Level pLevel, Vec3 pos, ItemStack pItemStack, Vec3 delta, Direction dir) {
         this(pLevel, pos.x(), pos.y(), pos.z(), pItemStack, delta.x(), delta.y(), delta.z(), dir);
-        this.path = BeltPath.createPath(pLevel, pos, blockPosition(), dir);
     }
 
     public CraftorioItemEntity(Level pLevel, double pPosX, double pPosY, double pPosZ, ItemStack pItemStack, double pDeltaX, double pDeltaY, double pDeltaZ, Direction dir) {
@@ -64,21 +63,15 @@ public class CraftorioItemEntity extends Entity {
         this.zo = this.getZ();
         Vec3 delta = this.getDeltaMovement();
 
-        if (path != null) {
-            this.hasImpulse = true;
-            setPos(path.getNewPosForItem(position()));
+        if (path == null) {
+            if (level().isClientSide()) return;
+            path = BeltPath.createPath(level(), position());
         }
 
-        if (!this.isNoGravity()) this.setDeltaMovement(this.getDeltaMovement().add(0.0D, -0.04D, 0.0D));
+        this.hasImpulse = true;
+        setPos(path.getNewPosForItem(position()));
 
-        // if (this.level().isClientSide) {
-        //     this.noPhysics = false;
-        // } else {
-        //     this.noPhysics = !this.level().noCollision(this, this.getBoundingBox().deflate(1.0E-7D));
-        //     if (this.noPhysics) {
-        //         this.moveTowardsClosestSpace(this.getX(), (this.getBoundingBox().minY+this.getBoundingBox().maxY)/2.0D, this.getZ());
-        //     }
-        // }
+        if (!this.isNoGravity()) this.setDeltaMovement(this.getDeltaMovement().add(0.0D, -0.04D, 0.0D));
 
         if (!this.onGround() || this.getDeltaMovement().horizontalDistanceSqr() > (double) 1.0E-5F || (this.tickCount+this.getId())%4 == 0) {
             this.move(MoverType.SELF, this.getDeltaMovement());
@@ -95,7 +88,7 @@ public class CraftorioItemEntity extends Entity {
             }
         }
 
-        if (!this.level().isClientSide() && (path == null || !this.getBlockStateOn().is(ModBlocks.BELT.get()))) {
+        if (!this.level().isClientSide() && !this.getBlockStateOn().is(ModBlocks.BELT.get())) {
             this.discard();
             this.level().addFreshEntity(new ItemEntity(
                 this.level(), xo, yo, zo, this.getItem(), delta.x(), delta.y(), delta.z()
