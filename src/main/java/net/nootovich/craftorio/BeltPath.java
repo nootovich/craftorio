@@ -18,21 +18,18 @@ public class BeltPath {
 
     public enum SIDE {
         LEFT, RIGHT
-
     }
 
     public Level     lvl;
     public Vec3      pos;
     public Direction dir;
     public SIDE      side;
-    public double    progress;
 
-    public BeltPath(Level level, BlockPos pos, Direction dir, SIDE side, double progress) {
-        this.lvl      = level;
-        this.pos      = Vec3.atLowerCornerOf(pos);
-        this.dir      = dir;
-        this.side     = side;
-        this.progress = progress;
+    public BeltPath(Level level, BlockPos pos, Direction dir, SIDE side) {
+        this.lvl  = level;
+        this.pos  = Vec3.atLowerCornerOf(pos);
+        this.dir  = dir;
+        this.side = side;
     }
 
     public static BeltPath createPath(Level level, Vec3 itemPos, BlockPos blockPos, Direction dir) {
@@ -41,39 +38,33 @@ public class BeltPath {
             throw new RuntimeException("Somehow the `CraftorioItemEntity` position is outside its own blockpos\n"+itemPos+" : "+blockPos);
         }
 
-        SIDE   side     = relativePos.x() < 0.5d ? SIDE.LEFT : SIDE.RIGHT;
-        double progress = 1-relativePos.z();
+        SIDE side = relativePos.x() < 0.5d ? SIDE.LEFT : SIDE.RIGHT;
 
-        return new BeltPath(level, blockPos, dir, side, progress);
+        return new BeltPath(level, blockPos, dir, side);
     }
 
     public Vec3 getNewPosForItem(Vec3 itemPos) {
         Vec3 relativePos = rotateFromDir(itemPos.subtract(this.pos), dir);
 
-        progress = 1-relativePos.z();
-
         double diffToSidePos      = Math.max(Math.min(getSidePos()-relativePos.x(), incrementStep), -incrementStep);
-        Vec3   newRelativePos     = incrementProgress(relativePos, itemPos, incrementStep-Math.abs(diffToSidePos));
+        Vec3   newRelativePos     = incrementProgress(relativePos, incrementStep-Math.abs(diffToSidePos));
         Vec3   updatedRelativePos = newRelativePos.add(diffToSidePos, 0, 0);
 
         return rotateToDir(updatedRelativePos, dir).add(this.pos);
     }
 
-    public Vec3 incrementProgress(Vec3 relativePos, Vec3 itemPos, double step) {
-        progress += step;
+    public Vec3 incrementProgress(Vec3 relativePos, double step) {
+        relativePos = relativePos.subtract(0, 0, step);
 
-        if (progress < 1) {
-            return relativePos.with(Direction.Axis.Z, 1-progress);
-        }
+        if (relativePos.z() > 0) return relativePos;
 
-        progress -= 1;
-        pos = pos.relative(dir, 1.0d);
-        relativePos = relativePos.subtract(0, 0, incrementStep);
+        relativePos = relativePos.add(0, 0, 1);
+        pos         = pos.relative(dir, 1.0d);
 
-        return updatePath(getFractional(relativePos), itemPos);
+        return updatePath(relativePos);
     }
 
-    public Vec3 updatePath(Vec3 relativePos, Vec3 itemPos) {
+    public Vec3 updatePath(Vec3 relativePos) {
         BlockState newBlock = lvl.getBlockState(BlockPos.containing(this.pos));
         if (!newBlock.is(ModBlocks.BELT.get())) return relativePos;
 
@@ -84,8 +75,7 @@ public class BeltPath {
 
         Vec3 newRelativePos = rotateFromDir(absPos, dir);
 
-        side     = (prevDir.get2DDataValue()+dir.get2DDataValue())%2 == 1 ? side : newRelativePos.x() < 0.5d ? SIDE.LEFT : SIDE.RIGHT;
-        progress = 1-newRelativePos.z();
+        side = (prevDir.get2DDataValue()+dir.get2DDataValue())%2 == 1 ? side : newRelativePos.x() < 0.5d ? SIDE.LEFT : SIDE.RIGHT;
 
         return newRelativePos;
     }
@@ -108,10 +98,6 @@ public class BeltPath {
     // To `NORTH` as the base direction
     public static Vec3 rotateFromDir(Vec3 input, Direction dir) {
         return rotateToDir(input, Direction.from2DDataValue(4-dir.get2DDataValue()));
-    }
-
-    public static Vec3 getFractional(Vec3 input) {
-        return new Vec3(((input.x()%1)+1)%1, ((input.y()%1)+1)%1, ((input.z()%1)+1)%1);
     }
 
 }
