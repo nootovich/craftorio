@@ -18,6 +18,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -28,8 +29,9 @@ import org.jetbrains.annotations.Nullable;
 
 public class ModBelt extends BaseEntityBlock {
 
-    public static final VoxelShape        SHAPE  = Block.box(0, 0, 0, 16, 10, 16);
-    public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
+    public static final VoxelShape        SHAPE_X = Block.box(0, 0, 2, 16, 8, 14);
+    public static final VoxelShape        SHAPE_Z = Block.box(2, 0, 0, 14, 8, 16);
+    public static final DirectionProperty FACING  = HorizontalDirectionalBlock.FACING;
 
     public ModBelt(Properties pProperties) {
         super(pProperties);
@@ -89,11 +91,22 @@ public class ModBelt extends BaseEntityBlock {
 
     @Override
     public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
-        return SHAPE;
+        Direction direction = pState.getValue(FACING);
+        return direction.getAxis() == Direction.Axis.X ? SHAPE_X : SHAPE_Z;
     }
 
     @Override
     public RenderShape getRenderShape(BlockState pState) {
         return RenderShape.MODEL;
+    }
+
+    @Override
+    public boolean hasAnalogOutputSignal(BlockState pState) {
+        return false;
+    }
+
+    @Override
+    public boolean isPathfindable(BlockState pState, BlockGetter pLevel, BlockPos pPos, PathComputationType pType) {
+        return false;
     }
 }

@@ -23,26 +23,26 @@
     "particle": "craftorio:block/belt",
     "down": "minecraft:block/black_wool",
     "up": "craftorio:block/belt",
-    "side": "minecraft:block/iron_block"
+    "side": "minecraft:block/netherite_block"
   },
   "elements": [
     {
       "from": [
-        0,
+        2,
         0,
         0
       ],
       "to": [
-        16,
-        10,
+        14,
+        8,
         16
       ],
       "faces": {
         "down": {
           "uv": [
+            2,
             0,
-            0,
-            16,
+            14,
             16
           ],
           "texture": "#down",
@@ -50,9 +50,9 @@
         },
         "up": {
           "uv": [
+            2,
             0,
-            0,
-            16,
+            14,
             16
           ],
           "texture": "#up",
@@ -60,9 +60,9 @@
         },
         "north": {
           "uv": [
-            0,
-            6,
-            16,
+            2,
+            8,
+            14,
             16
           ],
           "texture": "#side",
@@ -70,9 +70,9 @@
         },
         "south": {
           "uv": [
-            0,
-            6,
-            16,
+            2,
+            8,
+            14,
             16
           ],
           "texture": "#side",
@@ -81,7 +81,7 @@
         "west": {
           "uv": [
             0,
-            6,
+            8,
             16,
             16
           ],
@@ -91,7 +91,7 @@
         "east": {
           "uv": [
             0,
-            6,
+            8,
             16,
             16
           ],

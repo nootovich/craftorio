@@ -108,7 +108,7 @@ public class BeltPath {
     }
 
     public static Vec3 getPosFromQuadrant(QUADRANT relativeQuad) {
-        Vec3 result = new Vec3(0, .625, 0);
+        Vec3 result = new Vec3(0, .5, 0);
         result = result.add(relativeQuad == QUADRANT.TOP_LEFT || relativeQuad == QUADRANT.BOTTOM_LEFT ? left : right, 0, 0);
         result = result.add(0, 0, relativeQuad == QUADRANT.TOP_LEFT || relativeQuad == QUADRANT.TOP_RIGHT ? .25 : .75);
         return result;

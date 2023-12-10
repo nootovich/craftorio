@@ -5,12 +5,10 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -76,15 +74,10 @@ public class BeltBlockEntity extends BlockEntity {
         QUADRANT q           = getQuadrantFromPos(relativePos);
 
         Vec3[] spawnPositions = new Vec3[4];
-        if (isTopQuad(q)) {
-            spawnPositions[0] = rotateToDir(getPosFromQuadrant(q), dir).add(blockPos);
-            spawnPositions[1] = rotateToDir(getPosFromQuadrant(getOppositeQuadH(q)), dir).add(blockPos);
-        } else {
-            spawnPositions[0] = rotateToDir(getPosFromQuadrant(q), dir).add(blockPos);
-            spawnPositions[1] = rotateToDir(getPosFromQuadrant(getOppositeQuadH(q)), dir).add(blockPos);
-            spawnPositions[2] = rotateToDir(getPosFromQuadrant(getOppositeQuadV(q)), dir).add(blockPos);
-            spawnPositions[3] = rotateToDir(getPosFromQuadrant(getOppositeQuadH(getOppositeQuadV(q))), dir).add(blockPos);
-        }
+        spawnPositions[0] = rotateToDir(getPosFromQuadrant(q), dir).add(blockPos);
+        spawnPositions[1] = rotateToDir(getPosFromQuadrant(getOppositeQuadH(q)), dir).add(blockPos);
+        spawnPositions[2] = rotateToDir(getPosFromQuadrant(getOppositeQuadV(q)), dir).add(blockPos);
+        spawnPositions[3] = rotateToDir(getPosFromQuadrant(getOppositeQuadH(getOppositeQuadV(q))), dir).add(blockPos);
 
         ItemStack item = ie.getItem();
 
@@ -92,7 +85,7 @@ public class BeltBlockEntity extends BlockEntity {
             if (newPos == null || item.getCount() < 1) break;
 
             AABB CIEAABB = ModEntities.CRAFTORIO_ITEM.get().getAABB(newPos.x(), newPos.y(), newPos.z());
-            if (!pLevel.getEntities(ie, CIEAABB, (cie) -> cie instanceof CraftorioItemEntity).isEmpty()) return;
+            if (!pLevel.getEntities(ie, CIEAABB, (cie) -> cie instanceof CraftorioItemEntity).isEmpty()) continue;
 
             pLevel.addFreshEntity(new CraftorioItemEntity(pLevel, newPos, item.split(1), Vec3.ZERO, dir));
         }
@@ -107,16 +100,6 @@ public class BeltBlockEntity extends BlockEntity {
             return !nextBlock.is(ModBlocks.BELT.get()) && itemBB.intersects(blockBB);
         }
 
-        return false;
-    }
-
-    // MISC
-
-    public boolean hasAnalogOutputSignal(BlockState pState) {
-        return false;
-    }
-
-    public boolean isPathfindable(BlockState pState, BlockGetter pLevel, BlockPos pPos, PathComputationType pType) {
         return false;
     }
 }
