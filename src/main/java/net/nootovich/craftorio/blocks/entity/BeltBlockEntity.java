@@ -15,45 +15,27 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.nootovich.craftorio.blocks.ModBlocks;
+import net.nootovich.craftorio.entities.ModEntities;
 import net.nootovich.craftorio.entities.custom.CraftorioItemEntity;
 
+import static net.nootovich.craftorio.BeltPath.*;
+
 public class BeltBlockEntity extends BlockEntity {
-
-    private static final double speedFactor = 0.05d;
-
 
     public BeltBlockEntity(BlockPos pPos, BlockState pBlockState) {
         super(ModBlockEntities.MOD_BELT_BLOCK_ENTITY.get(), pPos, pBlockState);
     }
 
     public void tick(Level pLevel, BlockPos pPos, BlockState pState) {
-        Direction      direction = pState.getValue(HorizontalDirectionalBlock.FACING);
-        Direction.Axis axis      = direction.getAxis();
-        // Vec3           movementVector = Vec3.atLowerCornerOf(direction.getNormal()).scale(speedFactor);
-        Vec3 movementVector = Vec3.ZERO;
-        AABB movementBB     = new AABB(pPos).contract(0, -0.6, 0).contract(0, 0.2, 0);
-        movementBB = axis == Direction.Axis.X ? movementBB.deflate(0, 0, 0.2) : movementBB.deflate(0.2, 0, 0);
+        Direction      dir    = pState.getValue(HorizontalDirectionalBlock.FACING);
+        Direction.Axis axis   = dir.getAxis();
+        AABB           beltBB = new AABB(pPos).contract(0, -0.6, 0).contract(0, 0.2, 0);
+        beltBB = axis == Direction.Axis.X ? beltBB.deflate(0, 0, 0.2) : beltBB.deflate(0.2, 0, 0);
 
-        for (Entity e: pLevel.getEntities(null, movementBB)) {
+        for (Entity e: pLevel.getEntities(null, beltBB)) {
             if (e instanceof ItemEntity ie) {
-                ItemStack item = ie.getItem();
-
-                if (item.getCount() == 1) {
-
-                    // movementVector.add(ie.getDeltaMovement().with(direction.getClockWise().getAxis(), 0));
-                    ie.discard();
-                    pLevel.addFreshEntity(new CraftorioItemEntity(pLevel, ie.position(), item, movementVector, direction));
-
-                } else if (ie.getTicksFrozen() == 0) {
-
-                    ie.setExtendedLifetime();
-                    ie.setTicksFrozen(8);
-                    pLevel.addFreshEntity(new CraftorioItemEntity(pLevel, ie.position(), item.split(1), movementVector, direction));
-
-                } else ie.setTicksFrozen(ie.getTicksFrozen()-1);
-
-                continue;
-
+                ie.setExtendedLifetime();
+                trySpawnCraftorioItemEntity(pLevel, ie, dir);
             }
             /*else if (e instanceof CraftorioItemEntity cie) {
                 { // Collision with blocks
@@ -83,46 +65,36 @@ public class BeltBlockEntity extends BlockEntity {
                     }
                 }
 
-                // { // Movement towards lanes
-                //     // 0.2 ---BELT--- 0.8
-                //     //   LEFT     RIGHT
-                //     //   0.3125  0.6875
-                //
-                //     if (axis == Direction.Axis.X) {
-                //         final double fractionalZ       = cie.position().z()-pPos.getZ();
-                //         final double distToClosestLane = Math.min(Math.abs(fractionalZ-leftLane), Math.abs(fractionalZ-rightLane));
-                //         final double speed             = distToClosestLane*distToClosestLane*speedFactor;
-                //
-                //         if (fractionalZ > 0 && fractionalZ < 1 && distToClosestLane > leeway) {
-                //             if (fractionalZ < leftLane) cie.addDeltaMovement(new Vec3(0, 0, speed));
-                //             if (fractionalZ > rightLane) cie.addDeltaMovement(new Vec3(0, 0, -speed));
-                //             if (fractionalZ > leftLane && fractionalZ < midPoint) cie.addDeltaMovement(new Vec3(0, 0, -speed));
-                //             if (fractionalZ < rightLane && fractionalZ > midPoint) cie.addDeltaMovement(new Vec3(0, 0, speed));
-                //         }
-                //     } else {
-                //         final double fractionalX       = cie.position().x()-pPos.getX();
-                //         final double distToClosestLane = Math.min(Math.abs(fractionalX-leftLane), Math.abs(fractionalX-rightLane));
-                //         final double speed             = distToClosestLane*distToClosestLane*speedFactor;
-                //
-                //         if (fractionalX > 0 && fractionalX < 1 && distToClosestLane > leeway) {
-                //             if (fractionalX < leftLane) cie.addDeltaMovement(new Vec3(speed, 0, 0));
-                //             if (fractionalX > rightLane) cie.addDeltaMovement(new Vec3(-speed, 0, 0));
-                //             if (fractionalX > leftLane && fractionalX < midPoint) cie.addDeltaMovement(new Vec3(-speed, 0, 0));
-                //             if (fractionalX < rightLane && fractionalX > midPoint) cie.addDeltaMovement(new Vec3(speed, 0, 0));
-                //         }
-                //     }
-                // }
             }*/
+        }
+    }
 
-            // e.addDeltaMovement(movementVector);
-            //
-            // if (e instanceof Player) continue;
-            //
-            // double delta   = e.getDeltaMovement().get(axis);
-            // double desired = movementVector.get(axis);
-            // if (Math.abs(delta) > Math.abs(desired)) {
-            //     e.addDeltaMovement(new Vec3(0, 0, 0).with(axis, desired-delta));
-            // }
+    private void trySpawnCraftorioItemEntity(Level pLevel, ItemEntity ie, Direction dir) {
+        Vec3     pos         = ie.position();
+        Vec3     blockPos    = Vec3.atLowerCornerOf(BlockPos.containing(pos));
+        Vec3     relativePos = rotateFromDir(pos.subtract(blockPos), dir);
+        QUADRANT q           = getQuadrantFromPos(relativePos);
+
+        Vec3[] spawnPositions = new Vec3[4];
+        if (isTopQuad(q)) {
+            spawnPositions[0] = rotateToDir(getPosFromQuadrant(q), dir).add(blockPos);
+            spawnPositions[1] = rotateToDir(getPosFromQuadrant(getOppositeQuadH(q)), dir).add(blockPos);
+        } else {
+            spawnPositions[0] = rotateToDir(getPosFromQuadrant(q), dir).add(blockPos);
+            spawnPositions[1] = rotateToDir(getPosFromQuadrant(getOppositeQuadH(q)), dir).add(blockPos);
+            spawnPositions[2] = rotateToDir(getPosFromQuadrant(getOppositeQuadV(q)), dir).add(blockPos);
+            spawnPositions[3] = rotateToDir(getPosFromQuadrant(getOppositeQuadH(getOppositeQuadV(q))), dir).add(blockPos);
+        }
+
+        ItemStack item = ie.getItem();
+
+        for (Vec3 newPos: spawnPositions) {
+            if (newPos == null || item.getCount() < 1) break;
+
+            AABB CIEAABB = ModEntities.CRAFTORIO_ITEM.get().getAABB(newPos.x(), newPos.y(), newPos.z());
+            if (!pLevel.getEntities(ie, CIEAABB, (cie) -> cie instanceof CraftorioItemEntity).isEmpty()) return;
+
+            pLevel.addFreshEntity(new CraftorioItemEntity(pLevel, newPos, item.split(1), Vec3.ZERO, dir));
         }
     }
 

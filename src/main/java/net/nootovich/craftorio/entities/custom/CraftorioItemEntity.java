@@ -66,6 +66,10 @@ public class CraftorioItemEntity extends Entity {
         if (path == null) {
             if (level().isClientSide()) return;
             path = BeltPath.createPath(level(), position());
+            if (path == null) {
+                dropItem(delta);
+                return;
+            }
         }
 
         this.hasImpulse = true;
@@ -88,18 +92,19 @@ public class CraftorioItemEntity extends Entity {
             }
         }
 
-        if (!this.level().isClientSide() && !this.getBlockStateOn().is(ModBlocks.BELT.get())) {
-            this.discard();
-            this.level().addFreshEntity(new ItemEntity(
-                this.level(), xo, yo, zo, this.getItem(), delta.x(), delta.y(), delta.z()
-            ));
-        }
+        if (!this.level().isClientSide() && !this.getBlockStateOn().is(ModBlocks.BELT.get())) dropItem(delta);
 
         if (this.getItem().isEmpty() && !this.isRemoved()) this.discard();
     }
 
-    // MISC
+    private void dropItem(Vec3 delta) {
+        this.discard();
+        this.level().addFreshEntity(new ItemEntity(
+            this.level(), xo, yo, zo, this.getItem(), delta.x(), delta.y(), delta.z()
+        ));
+    }
 
+    // MISC
 
     @Override
     protected MovementEmission getMovementEmission() {

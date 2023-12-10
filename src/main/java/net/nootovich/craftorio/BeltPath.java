@@ -5,6 +5,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.nootovich.craftorio.blocks.ModBlocks;
 
@@ -20,6 +21,10 @@ public class BeltPath {
         LEFT, RIGHT
     }
 
+    public enum QUADRANT {
+        TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT
+    }
+
     public Level     lvl;
     public Vec3      pos;
     public Direction dir;
@@ -33,10 +38,13 @@ public class BeltPath {
     }
 
     public static BeltPath createPath(Level level, Vec3 itemPos) {
-        BlockPos blockPos = BlockPos.containing(itemPos);
+        BlockPos   blockPos   = BlockPos.containing(itemPos);
+        BlockState blockState = level.getBlockState(blockPos);
+        if (!blockState.is(ModBlocks.BELT.get())) return null;
         Direction itemDir = level.getBlockState(blockPos).getValue(HorizontalDirectionalBlock.FACING);
         return createPath(level, itemPos, blockPos, itemDir);
     }
+
     public static BeltPath createPath(Level level, Vec3 itemPos, BlockPos blockPos, Direction dir) {
         Vec3 relativePos = rotateFromDir(itemPos.subtract(Vec3.atLowerCornerOf(blockPos)), dir);
         if (relativePos.x() < 0 || relativePos.x() > 1 || relativePos.z() < 0 || relativePos.z() > 1) {
@@ -87,6 +95,78 @@ public class BeltPath {
 
     public double getSidePos() {
         return side == SIDE.LEFT ? left : right;
+    }
+
+    public static QUADRANT getQuadrantFromPos(Vec3 relativePos) {
+        if (relativePos.x() < .5) {
+            if (relativePos.z() < .5) return QUADRANT.TOP_LEFT;
+            else return QUADRANT.BOTTOM_LEFT;
+        } else {
+            if (relativePos.z() < .5) return QUADRANT.TOP_RIGHT;
+            else return QUADRANT.BOTTOM_RIGHT;
+        }
+    }
+
+    public static Vec3 getPosFromQuadrant(QUADRANT relativeQuad) {
+        Vec3 result = new Vec3(0, .625, 0);
+        result = result.add(relativeQuad == QUADRANT.TOP_LEFT || relativeQuad == QUADRANT.BOTTOM_LEFT ? left : right, 0, 0);
+        result = result.add(0, 0, relativeQuad == QUADRANT.TOP_LEFT || relativeQuad == QUADRANT.TOP_RIGHT ? .25 : .75);
+        return result;
+    }
+
+    public static AABB getQuadrantBB(QUADRANT relativeQuad) {
+        Vec3 a = switch (relativeQuad) {
+            case TOP_LEFT -> new Vec3(0, 1, 0);
+            case TOP_RIGHT -> new Vec3(1, 1, 0);
+            case BOTTOM_LEFT -> new Vec3(0, 1, 1);
+            case BOTTOM_RIGHT -> new Vec3(1, 1, 1);
+        };
+        Vec3 b = new Vec3(.5, .5, .5);
+        return new AABB(a, b);
+    }
+
+    public static AABB getQuadrantBBFromPos(Vec3 relativePos) {
+        return getQuadrantBB(getQuadrantFromPos(relativePos));
+    }
+
+    public static Vec3 relativeRoundPosToQuad(Vec3 relativePos) {
+        return getPosFromQuadrant(getQuadrantFromPos(relativePos));
+    }
+
+    public static Vec3 roundPosToQuad(Vec3 pos, Direction pDir) {
+        Vec3 blockPos    = Vec3.atLowerCornerOf(BlockPos.containing(pos));
+        Vec3 relativePos = rotateFromDir(pos.subtract(blockPos), pDir);
+        Vec3 roundedPos  = rotateToDir(relativeRoundPosToQuad(relativePos), pDir).add(blockPos);
+        return roundedPos;
+    }
+
+    public static QUADRANT getOppositeQuadH(QUADRANT q) {
+        int ord = q.ordinal();
+        if (ord%2 == 0) {
+            return QUADRANT.values()[(ord+1)%4];
+        } else {
+            return QUADRANT.values()[(ord+3)%4];
+        }
+    }
+
+    public static QUADRANT getOppositeQuadV(QUADRANT q) {
+        return QUADRANT.values()[(q.ordinal()+2)%4];
+    }
+
+    public static boolean isTopQuad(QUADRANT q) {
+        return q.ordinal() < 2;
+    }
+
+    public static boolean isBottomQuad(QUADRANT q) {
+        return q.ordinal() > 1;
+    }
+
+    public static boolean isLeftQuad(QUADRANT q) {
+        return q.ordinal() % 2 == 0;
+    }
+
+    public static boolean isRightQuad(QUADRANT q) {
+        return q.ordinal() % 2 == 1;
     }
 
     // Assuming `NORTH` as the base direction
