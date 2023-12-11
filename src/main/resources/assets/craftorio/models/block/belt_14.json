@@ -1,0 +1,100 @@
+{
+  "parent": "block/cube",
+  "ambientocclusion": false,
+  "textures": {
+    "particle": "craftorio:block/belt",
+    "down": "minecraft:block/black_wool",
+    "up": "craftorio:block/belt",
+    "side": "minecraft:block/netherite_block"
+  },
+  "elements": [
+    {
+      "from": [2, 0, 1],
+      "to": [14, 8, 16],
+      "faces": {
+        "down": {
+          "texture": "#down",
+          "cullface": "down"
+        },
+        "up": {
+          "texture": "#up",
+          "cullface": "up"
+        },
+        "north": {
+          "texture": "#side",
+          "cullface": "north"
+        },
+        "south": {
+          "texture": "#side",
+          "cullface": "south"
+        },
+        "west": {
+          "texture": "#side",
+          "cullface": "west"
+        },
+        "east": {
+          "texture": "#side",
+          "cullface": "east"
+        }
+      }
+    }, {
+      "from": [0, 0, 2],
+      "to": [2, 8, 14],
+      "faces": {
+        "down": {
+          "texture": "#down",
+          "cullface": "down"
+        },
+        "up": {
+          "texture": "#up",
+          "cullface": "up"
+        },
+        "north": {
+          "texture": "#side",
+          "cullface": "north"
+        },
+        "south": {
+          "texture": "#side",
+          "cullface": "south"
+        },
+        "west": {
+          "texture": "#side",
+          "cullface": "west"
+        },
+        "east": {
+          "texture": "#side",
+          "cullface": "east"
+        }
+      }
+    }, {
+      "from": [14, 0, 2],
+      "to": [16, 8, 14],
+      "faces": {
+        "down": {
+          "texture": "#down",
+          "cullface": "down"
+        },
+        "up": {
+          "texture": "#up",
+          "cullface": "up"
+        },
+        "north": {
+          "texture": "#side",
+          "cullface": "north"
+        },
+        "south": {
+          "texture": "#side",
+          "cullface": "south"
+        },
+        "west": {
+          "texture": "#side",
+          "cullface": "west"
+        },
+        "east": {
+          "texture": "#side",
+          "cullface": "east"
+        }
+      }
+    }
+  ]
+}

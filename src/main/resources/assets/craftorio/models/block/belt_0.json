@@ -1,0 +1,49 @@
+{
+  "parent": "block/cube",
+  "ambientocclusion": false,
+  "display": {
+    "firstperson_righthand": {
+      "rotation": [0, 135, 0],
+      "translation": [0, 0, 0],
+      "scale": [0.40, 0.40, 0.40]
+    }
+  },
+  "textures": {
+    "particle": "craftorio:block/belt",
+    "down": "minecraft:block/black_wool",
+    "up": "craftorio:block/belt",
+    "side": "minecraft:block/netherite_block"
+  },
+  "elements": [
+    {
+      "from": [2, 0, 1],
+      "to": [14, 8, 15],
+      "faces": {
+        "down": {
+          "texture": "#down",
+          "cullface": "down"
+        },
+        "up": {
+          "texture": "#up",
+          "cullface": "up"
+        },
+        "north": {
+          "texture": "#side",
+          "cullface": "north"
+        },
+        "south": {
+          "texture": "#side",
+          "cullface": "south"
+        },
+        "west": {
+          "texture": "#side",
+          "cullface": "west"
+        },
+        "east": {
+          "texture": "#side",
+          "cullface": "east"
+        }
+      }
+    }
+  ]
+}

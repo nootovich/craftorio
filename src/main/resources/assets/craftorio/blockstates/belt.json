@@ -1,18 +1,243 @@
 {
   "variants": {
-    "facing=east": {
-      "model": "craftorio:block/belt",
+    "connections=0,facing=east": {
+      "model": "craftorio:block/belt_0",
       "y": 90
     },
-    "facing=north": {
-      "model": "craftorio:block/belt"
+    "connections=0,facing=north": {
+      "model": "craftorio:block/belt_0"
     },
-    "facing=south": {
-      "model": "craftorio:block/belt",
+    "connections=0,facing=south": {
+      "model": "craftorio:block/belt_0",
       "y": 180
     },
-    "facing=west": {
-      "model": "craftorio:block/belt",
+    "connections=0,facing=west": {
+      "model": "craftorio:block/belt_0",
+      "y": 270
+    },
+    "connections=1,facing=east": {
+      "model": "craftorio:block/belt_1",
+      "y": 90
+    },
+    "connections=1,facing=north": {
+      "model": "craftorio:block/belt_1"
+    },
+    "connections=1,facing=south": {
+      "model": "craftorio:block/belt_1",
+      "y": 180
+    },
+    "connections=1,facing=west": {
+      "model": "craftorio:block/belt_1",
+      "y": 270
+    },
+    "connections=2,facing=east": {
+      "model": "craftorio:block/belt_2",
+      "y": 90
+    },
+    "connections=2,facing=north": {
+      "model": "craftorio:block/belt_2"
+    },
+    "connections=2,facing=south": {
+      "model": "craftorio:block/belt_2",
+      "y": 180
+    },
+    "connections=2,facing=west": {
+      "model": "craftorio:block/belt_2",
+      "y": 270
+    },
+    "connections=3,facing=east": {
+      "model": "craftorio:block/belt_3",
+      "y": 90
+    },
+    "connections=3,facing=north": {
+      "model": "craftorio:block/belt_3"
+    },
+    "connections=3,facing=south": {
+      "model": "craftorio:block/belt_3",
+      "y": 180
+    },
+    "connections=3,facing=west": {
+      "model": "craftorio:block/belt_3",
+      "y": 270
+    },
+    "connections=4,facing=east": {
+      "model": "craftorio:block/belt_4",
+      "y": 90
+    },
+    "connections=4,facing=north": {
+      "model": "craftorio:block/belt_4"
+    },
+    "connections=4,facing=south": {
+      "model": "craftorio:block/belt_4",
+      "y": 180
+    },
+    "connections=4,facing=west": {
+      "model": "craftorio:block/belt_4",
+      "y": 270
+    },
+    "connections=5,facing=east": {
+      "model": "craftorio:block/belt_5",
+      "y": 90
+    },
+    "connections=5,facing=north": {
+      "model": "craftorio:block/belt_5"
+    },
+    "connections=5,facing=south": {
+      "model": "craftorio:block/belt_5",
+      "y": 180
+    },
+    "connections=5,facing=west": {
+      "model": "craftorio:block/belt_5",
+      "y": 270
+    },
+    "connections=6,facing=east": {
+      "model": "craftorio:block/belt_6",
+      "y": 90
+    },
+    "connections=6,facing=north": {
+      "model": "craftorio:block/belt_6"
+    },
+    "connections=6,facing=south": {
+      "model": "craftorio:block/belt_6",
+      "y": 180
+    },
+    "connections=6,facing=west": {
+      "model": "craftorio:block/belt_6",
+      "y": 270
+    },
+    "connections=7,facing=east": {
+      "model": "craftorio:block/belt_7",
+      "y": 90
+    },
+    "connections=7,facing=north": {
+      "model": "craftorio:block/belt_7"
+    },
+    "connections=7,facing=south": {
+      "model": "craftorio:block/belt_7",
+      "y": 180
+    },
+    "connections=7,facing=west": {
+      "model": "craftorio:block/belt_7",
+      "y": 270
+    },
+    "connections=8,facing=east": {
+      "model": "craftorio:block/belt_8",
+      "y": 90
+    },
+    "connections=8,facing=north": {
+      "model": "craftorio:block/belt_8"
+    },
+    "connections=8,facing=south": {
+      "model": "craftorio:block/belt_8",
+      "y": 180
+    },
+    "connections=8,facing=west": {
+      "model": "craftorio:block/belt_8",
+      "y": 270
+    },
+    "connections=9,facing=east": {
+      "model": "craftorio:block/belt_9",
+      "y": 90
+    },
+    "connections=9,facing=north": {
+      "model": "craftorio:block/belt_9"
+    },
+    "connections=9,facing=south": {
+      "model": "craftorio:block/belt_9",
+      "y": 180
+    },
+    "connections=9,facing=west": {
+      "model": "craftorio:block/belt_9",
+      "y": 270
+    },
+    "connections=10,facing=east": {
+      "model": "craftorio:block/belt_10",
+      "y": 90
+    },
+    "connections=10,facing=north": {
+      "model": "craftorio:block/belt_10"
+    },
+    "connections=10,facing=south": {
+      "model": "craftorio:block/belt_10",
+      "y": 180
+    },
+    "connections=10,facing=west": {
+      "model": "craftorio:block/belt_10",
+      "y": 270
+    },
+    "connections=11,facing=east": {
+      "model": "craftorio:block/belt_11",
+      "y": 90
+    },
+    "connections=11,facing=north": {
+      "model": "craftorio:block/belt_11"
+    },
+    "connections=11,facing=south": {
+      "model": "craftorio:block/belt_11",
+      "y": 180
+    },
+    "connections=11,facing=west": {
+      "model": "craftorio:block/belt_11",
+      "y": 270
+    },
+    "connections=12,facing=east": {
+      "model": "craftorio:block/belt_12",
+      "y": 90
+    },
+    "connections=12,facing=north": {
+      "model": "craftorio:block/belt_12"
+    },
+    "connections=12,facing=south": {
+      "model": "craftorio:block/belt_12",
+      "y": 180
+    },
+    "connections=12,facing=west": {
+      "model": "craftorio:block/belt_12",
+      "y": 270
+    },
+    "connections=13,facing=east": {
+      "model": "craftorio:block/belt_13",
+      "y": 90
+    },
+    "connections=13,facing=north": {
+      "model": "craftorio:block/belt_13"
+    },
+    "connections=13,facing=south": {
+      "model": "craftorio:block/belt_13",
+      "y": 180
+    },
+    "connections=13,facing=west": {
+      "model": "craftorio:block/belt_13",
+      "y": 270
+    },
+    "connections=14,facing=east": {
+      "model": "craftorio:block/belt_14",
+      "y": 90
+    },
+    "connections=14,facing=north": {
+      "model": "craftorio:block/belt_14"
+    },
+    "connections=14,facing=south": {
+      "model": "craftorio:block/belt_14",
+      "y": 180
+    },
+    "connections=14,facing=west": {
+      "model": "craftorio:block/belt_14",
+      "y": 270
+    },
+    "connections=15,facing=east": {
+      "model": "craftorio:block/belt_15",
+      "y": 90
+    },
+    "connections=15,facing=north": {
+      "model": "craftorio:block/belt_15"
+    },
+    "connections=15,facing=south": {
+      "model": "craftorio:block/belt_15",
+      "y": 180
+    },
+    "connections=15,facing=west": {
+      "model": "craftorio:block/belt_15",
       "y": 270
     }
   }
