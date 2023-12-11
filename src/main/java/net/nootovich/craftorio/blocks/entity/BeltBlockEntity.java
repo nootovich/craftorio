@@ -81,13 +81,13 @@ public class BeltBlockEntity extends BlockEntity {
 
         ItemStack item = ie.getItem();
 
-        for (Vec3 newPos: spawnPositions) {
-            if (newPos == null || item.getCount() < 1) break;
+        for (Vec3 spawnPos: spawnPositions) {
+            if (spawnPos == null || item.getCount() < 1) break;
 
-            AABB CIEAABB = ModEntities.CRAFTORIO_ITEM.get().getAABB(newPos.x(), newPos.y(), newPos.z());
+            AABB CIEAABB = ModEntities.CRAFTORIO_ITEM.get().getAABB(spawnPos.x(), spawnPos.y(), spawnPos.z());
             if (!pLevel.getEntities(ie, CIEAABB, (cie) -> cie instanceof CraftorioItemEntity).isEmpty()) continue;
 
-            pLevel.addFreshEntity(new CraftorioItemEntity(pLevel, newPos, item.split(1), Vec3.ZERO, dir));
+            pLevel.addFreshEntity(new CraftorioItemEntity(pLevel, spawnPos, item.split(1), Vec3.ZERO, dir));
         }
     }
 
