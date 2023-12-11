@@ -8,14 +8,16 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.nootovich.craftorio.blocks.ModBlocks;
+import net.nootovich.craftorio.blocks.custom.ModBelt;
+import net.nootovich.craftorio.entities.ModEntities;
 
 
 public class BeltPath {
 
-    private static final double left          = 0.3125d;
-    private static final double right         = 0.6875d;
-    private static final double incrementStep = 0.01d;
-
+    private static final double leftSide      = 0.3125d;
+    private static final double rightSide     = 0.6875d;
+    private static final double incrementStep = 0.1d;
+    private static final double itemSize      = ModEntities.CRAFTORIO_ITEM.get().getWidth();
 
     public enum SIDE {
         LEFT, RIGHT
@@ -59,42 +61,56 @@ public class BeltPath {
     public Vec3 getNewPosForItem(Vec3 itemPos) {
         Vec3 relativePos = rotateFromDir(itemPos.subtract(this.pos), dir);
 
-        double diffToSidePos      = Math.max(Math.min(getSidePos()-relativePos.x(), incrementStep), -incrementStep);
-        Vec3   newRelativePos     = incrementProgress(relativePos, incrementStep-Math.abs(diffToSidePos));
-        Vec3   updatedRelativePos = newRelativePos.add(diffToSidePos, 0, 0);
+        double diffToSide         = Math.max(Math.min(getSidePos()-relativePos.x(), incrementStep), -incrementStep);
+        Vec3   newRelativePos     = incrementProgress(relativePos, incrementStep-Math.abs(diffToSide));
+        Vec3   updatedRelativePos = newRelativePos.add(diffToSide, 0, 0);
 
         return rotateToDir(updatedRelativePos, dir).add(this.pos);
     }
 
     public Vec3 incrementProgress(Vec3 relativePos, double step) {
+        BlockState nextBlock = lvl.getBlockState(BlockPos.containing(pos.relative(dir, 1)));
+
+        if (!nextBlock.is(ModBlocks.BELT.get()) || nextBlock.getValue(ModBelt.FACING) == dir.getOpposite()) {
+            return relativePos.subtract(0, 0, Math.min(step, relativePos.z()-itemSize*.5d));
+        }
+
         relativePos = relativePos.subtract(0, 0, step);
-
         if (relativePos.z() > 0) return relativePos;
-
-        relativePos = relativePos.add(0, 0, 1);
-        pos         = pos.relative(dir, 1.0d);
 
         return updatePath(relativePos);
     }
 
     public Vec3 updatePath(Vec3 relativePos) {
-        BlockState newBlock = lvl.getBlockState(BlockPos.containing(this.pos));
-        if (!newBlock.is(ModBlocks.BELT.get())) return relativePos;
+        Direction oldDir = dir;
 
-        Vec3 absPos = rotateToDir(relativePos, dir);
+        relativePos = relativePos.add(0, 0, 1);
+        pos         = pos.relative(dir, 1.0d);
 
-        Direction prevDir = dir;
+        BlockState newBlock = lvl.getBlockState(BlockPos.containing(pos));
         dir = newBlock.getValue(HorizontalDirectionalBlock.FACING);
+        if (!newBlock.is(ModBlocks.BELT.get()) || dir == oldDir) return relativePos;
 
+        Vec3 absPos         = rotateToDir(relativePos, oldDir);
         Vec3 newRelativePos = rotateFromDir(absPos, dir);
 
-        side = (prevDir.get2DDataValue()+dir.get2DDataValue())%2 == 1 ? side : newRelativePos.x() < 0.5d ? SIDE.LEFT : SIDE.RIGHT;
+        BlockState overNewBlock = lvl.getBlockState(BlockPos.containing(pos.relative(oldDir, 1)));
+        if (overNewBlock.is(ModBlocks.BELT.get()) && overNewBlock.getValue(ModBelt.FACING) == oldDir.getOpposite()) {
+            side = newRelativePos.x() < 0.5d ? SIDE.LEFT : SIDE.RIGHT;
+            return newRelativePos;
+        }
+
+        BlockState intoNewBlock = lvl.getBlockState(BlockPos.containing(pos.relative(dir, -1)));
+        if (intoNewBlock.is(ModBlocks.BELT.get()) && intoNewBlock.getValue(ModBelt.FACING) == dir) {
+            side = newRelativePos.x() < 0.5d ? SIDE.LEFT : SIDE.RIGHT;
+            return newRelativePos;
+        }
 
         return newRelativePos;
     }
 
     public double getSidePos() {
-        return side == SIDE.LEFT ? left : right;
+        return side == SIDE.LEFT ? leftSide : rightSide;
     }
 
     public static QUADRANT getQuadrantFromPos(Vec3 relativePos) {
@@ -109,7 +125,7 @@ public class BeltPath {
 
     public static Vec3 getPosFromQuadrant(QUADRANT relativeQuad) {
         Vec3 result = new Vec3(0, .5, 0);
-        result = result.add(relativeQuad == QUADRANT.TOP_LEFT || relativeQuad == QUADRANT.BOTTOM_LEFT ? left : right, 0, 0);
+        result = result.add(relativeQuad == QUADRANT.TOP_LEFT || relativeQuad == QUADRANT.BOTTOM_LEFT ? leftSide : rightSide, 0, 0);
         result = result.add(0, 0, relativeQuad == QUADRANT.TOP_LEFT || relativeQuad == QUADRANT.TOP_RIGHT ? .25 : .75);
         return result;
     }
@@ -162,11 +178,11 @@ public class BeltPath {
     }
 
     public static boolean isLeftQuad(QUADRANT q) {
-        return q.ordinal() % 2 == 0;
+        return q.ordinal()%2 == 0;
     }
 
     public static boolean isRightQuad(QUADRANT q) {
-        return q.ordinal() % 2 == 1;
+        return q.ordinal()%2 == 1;
     }
 
     // Assuming `NORTH` as the base direction
