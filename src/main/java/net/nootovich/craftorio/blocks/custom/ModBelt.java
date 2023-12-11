@@ -45,8 +45,15 @@ public class ModBelt extends BaseEntityBlock {
         }
     }
 
-    public static final VoxelShape   BASE_X      = Block.box(1, 0, 2, 15, 8, 14);
-    public static final VoxelShape   BASE_Z      = Block.box(2, 0, 1, 14, 8, 15);
+    public static final VoxelShape BASE_X = Block.box(2, 0, 2, 14, 8, 14);
+    public static final VoxelShape BASE_Z = Block.box(2, 0, 2, 14, 8, 14);
+
+    public static final VoxelShape   EXTR_WEST   = Block.box(1, 0, 2, 2, 8, 14);
+    public static final VoxelShape   EXTR_EAST   = Block.box(14, 0, 2, 15, 8, 14);
+    public static final VoxelShape   EXTR_NORTH  = Block.box(2, 0, 1, 14, 8, 2);
+    public static final VoxelShape   EXTR_SOUTH  = Block.box(2, 0, 14, 14, 8, 15);
+    public static final VoxelShape[] EXTR_SHAPES = {EXTR_NORTH, EXTR_EAST, EXTR_SOUTH, EXTR_WEST};
+
     public static final VoxelShape   CONN_WEST   = Block.box(0, 0, 2, 2, 8, 14);
     public static final VoxelShape   CONN_EAST   = Block.box(14, 0, 2, 16, 8, 14);
     public static final VoxelShape   CONN_NORTH  = Block.box(2, 0, 0, 14, 8, 2);
@@ -155,10 +162,38 @@ public class ModBelt extends BaseEntityBlock {
         VoxelShape base  = direction.getAxis() == Direction.Axis.X ? BASE_X : BASE_Z;
         VoxelShape extra = Block.box(0, 0, 0, 0, 0, 0);
 
-        if ((connections&Connection.BACK_.val) > 0) extra = Shapes.or(extra, CONN_SHAPES[(0+dirOffset)%4]);
-        if ((connections&Connection.LEFT_.val) > 0) extra = Shapes.or(extra, CONN_SHAPES[(1+dirOffset)%4]);
-        if ((connections&Connection.FRONT.val) > 0) extra = Shapes.or(extra, CONN_SHAPES[(2+dirOffset)%4]);
-        if ((connections&Connection.RIGHT.val) > 0) extra = Shapes.or(extra, CONN_SHAPES[(3+dirOffset)%4]);
+        // Voxel Shapes Cheat Sheet
+
+        // 0  xf    xb
+        // 1     cf xb
+        // 2  xf             cr
+        // 3     cf          cr
+        // 4  xf       cb
+        // 5     cf    cb
+        // 6  xf       cb    cr
+        // 7     cf    cb    cr
+        // 8  xf          cl
+        // 9     cf       cl
+        // 10 xf    xb    cl cr
+        // 11    cf xb    cl cr
+        // 12 xf       cb cl
+        // 13    cf    cb cl
+        // 14 xf       cb cl cr
+        // 15    cf    cb cl cr
+
+        // xf = i%2 == 0
+        // cf = i%2 == 1
+        // xb = i%10 < 2
+        // cb = i%8 > 3
+        // cl = i > 7
+        // cr = i%4 >= 2
+
+        if (connections%2 == 0) extra = Shapes.or(extra, EXTR_SHAPES[(2+dirOffset)%4]);
+        if (connections%2 == 1) extra = Shapes.or(extra, CONN_SHAPES[(2+dirOffset)%4]);
+        if (connections%10 < 2) extra = Shapes.or(extra, EXTR_SHAPES[(0+dirOffset)%4]);
+        if (connections%8 >= 4) extra = Shapes.or(extra, CONN_SHAPES[(0+dirOffset)%4]);
+        if (connections%4 >= 2) extra = Shapes.or(extra, CONN_SHAPES[(3+dirOffset)%4]);
+        if (connections+0 >= 8) extra = Shapes.or(extra, CONN_SHAPES[(1+dirOffset)%4]);
 
         return Shapes.or(base, extra);
     }
