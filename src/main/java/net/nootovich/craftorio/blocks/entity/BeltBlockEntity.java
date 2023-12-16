@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.nootovich.craftorio.OptimizedBeltPath;
 import net.nootovich.craftorio.blocks.ModBlocks;
 import net.nootovich.craftorio.entities.ModEntities;
 import net.nootovich.craftorio.entities.custom.CraftorioItemEntity;
@@ -20,8 +21,13 @@ import static net.nootovich.craftorio.BeltPath.*;
 
 public class BeltBlockEntity extends BlockEntity {
 
+    public OptimizedBeltPath leftPath;
+    public OptimizedBeltPath rightPath;
+
     public BeltBlockEntity(BlockPos pPos, BlockState pBlockState) {
         super(ModBlockEntities.MOD_BELT_BLOCK_ENTITY.get(), pPos, pBlockState);
+        this.leftPath = new OptimizedBeltPath(pBlockState, pPos, 1d, OptimizedBeltPath.SIDE.LEFT);
+        this.rightPath = new OptimizedBeltPath(pBlockState, pPos, 1d, OptimizedBeltPath.SIDE.RIGHT);
     }
 
     public void tick(Level pLevel, BlockPos pPos, BlockState pState) {
